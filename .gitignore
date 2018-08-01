@@ -1,0 +1,12 @@
+# Compiled python modules.
+*.pyc
+
+# emacs stuff
+*~
+*/*~
+
+# .dat files in examples
+examples/*.dat
+notebook/*.dat
+notebook/.ipynb_checkpoints
+
