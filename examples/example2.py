@@ -42,7 +42,7 @@ for j in range(n_bins):
     
     rew = rr.Reweight([exp_couplings],[calc_couplings_bin])
     rew.optimize(theta=theta)
-
+    
     rew.weight_exp([exp_noe,exp_unoe,exp_couplings],[calc_noe_bin, calc_unoe_bin, calc_couplings_bin ] , 'example2_%d' % (j))
 
     start += bin_size

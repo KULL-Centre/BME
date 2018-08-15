@@ -14,9 +14,10 @@ exp_couplings = '../data/couplings_exp.dat'
 calc_noe='../data/NOE_calc.dat'
 calc_unoe='../data/uNOE_calc.dat'
 calc_couplings = '../data/couplings_calc.dat'
+
 # initialize reweighting class : use only couplings as input
 rew = rr.Reweight([exp_couplings],[calc_couplings])
-# do optimization using theta=1
+# do optimization using theta=2
 rew.optimize(theta=2.0)
 
 # compare NOE, uNOE and J Couplings before and after optimization .

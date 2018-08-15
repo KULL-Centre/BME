@@ -190,9 +190,10 @@ class Reweight:
         if(kbt!=None):
             print "# Assuming weights given as minus free energies. w=exp(bias/kbt) kbt=%8.4f "  % kbt
             w0 = np.exp(w0/kbt)
-        print "# Set non-uniform initial weights from file. Sum=", np.sum(w0)
+        print "# Set non-uniform initial weights from file. Sum=", np.sum(w0), w0.shape
         print "# ATT!! call this function BEFORE optimization!!"
         self.w0 = (w0/np.sum(w0))
+        #self.w0 = w0
 
 
     def chi_squared(self,ww):
@@ -247,6 +248,8 @@ class Reweight:
             
         self.theta = theta
         # first, calculate initial chi squared and RMSD
+        chi_sq0 = self.chi_squared(self.w0)/len(self.exp_data)
+        print "Initial average chi squared %10.4f, srel %10.4f " % (chi_sq0, self.srel(self.w0))
         
         if(method=="MAXENT"):
             #opt={'maxiter':10000,'disp': False,'ftol':1.0e-10}
@@ -267,14 +270,13 @@ class Reweight:
             meth = "SLSQP"
             print "# Bayesian Ensemble Refinement. Useful for testing purposes and "
             print "# When the number of experimental data is larger than the number of samples."
-            w_init = np.ones(self.sim_data.shape[0])/self.sim_data.shape[0]
-            result = optimize.minimize(func_ber_gauss,w_init,constraints=cons,options=opt,method=meth,bounds=bounds)
+            #w_init = np.ones(self.sim_data.shape[0])/self.sim_data.shape[0]
+            
+            result = optimize.minimize(func_ber_gauss,self.w0,constraints=cons,options=opt,method=meth,bounds=bounds)
             #self.result = np.copy(result.x)
 
             w_opt = result.x
 
-        chi_sq0 = self.chi_squared(self.w0)/len(self.exp_data)
-        print "Initial average chi squared %10.4f, srel %10.4f " % (chi_sq0, self.srel(self.w0))
 
         if(result.success):
             print "# Minimization successful"
@@ -313,7 +315,7 @@ class Reweight:
 
         fh_stats  = open(fname_stats,'w')
         fh_stats.write("# Reweighting. n_data=%d, n_samples=%d \n" % (self.exp_data.shape[0],self.sim_data.shape[0]))
-        neff1 = np.exp(np.sum(-self.w_opt*np.log(self.w_opt)))/len(self.w_opt)
+        neff1 = np.exp(np.sum(-self.w_opt*np.log(self.w_opt/self.w0)))
         fh_stats.write("# %-5s %8.4f  \n" % ("Theta",self.theta))        
         fh_stats.write("# %-5s %8.4f  \n" % ("neff",neff1))
 
