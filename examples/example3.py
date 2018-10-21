@@ -2,7 +2,7 @@ import os
 import sys
 cwd = os.getcwd()[:-8]
 sys.path.append(cwd)
-import reweight as rr
+import bme_reweight as bme
 
 # define name of experimental datafiles
 exp_noe='../data/NOE_exp.dat'
@@ -17,18 +17,20 @@ calc_couplings = '../data/couplings_calc.dat'
 n_frames = 20000
 n_bins = 5
 bin_size = n_frames/n_bins
+bins = range(0,n_frames+bin_size,bin_size)
 
 thetas= [0.1,0.5,1,2,3,4,5,7.5,10,15,20,40,50,100,500,5000]
 
 
 for t in thetas:
-    for j in range(n_bins):
+    for j in range(len(bins)-1):    
+        rows = range(bins[j],bins[j+1])
     
-        calc_noe_bin = "%s.%d" % (calc_noe,j)
-        calc_unoe_bin = "%s.%d" % (calc_unoe,j)
-        calc_couplings_bin = "%s.%d" % (calc_couplings,j)
-        
-        rew = rr.Reweight([exp_couplings],[calc_couplings_bin])
+        rew = bme.Reweight()
+        rew.load(exp_couplings,calc_couplings,rows=rows)
         rew.optimize(theta=t)
+
+        rew.weight_exp(exp_noe,calc_noe, 'example3_%d_%.1f_noe' % (j,t),rows=rows)
+        rew.weight_exp(exp_couplings,calc_couplings, 'example3_%d_%.1f_couplings' % (j,t),rows=rows)
+
         
-        rew.weight_exp([exp_noe,exp_unoe,exp_couplings],[calc_noe_bin, calc_unoe_bin, calc_couplings_bin ] , 'example3_%.1f_%d' % (t,j))
