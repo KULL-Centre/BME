@@ -1,7 +1,8 @@
 # import the reweighting script
 import os
 import sys
-cwd = os.getcwd()[:-8]
+bme_path = os.getcwd()[:-8]
+# here append the path to the bme script
 sys.path.append(cwd)
 import bme_reweight as bme
 

@@ -276,15 +276,16 @@ class Reweight:
     # set non-uniform weights
     def set_w0(self,w0,kbt=None):
 
-        
+        w0 = np.array(w0)
         if(kbt!=None):
             print("# Assuming weights given as minus free energies. w=exp(bias/kbt) kbt=%8.4f "  % kbt)
-            w0 = np.exp(w0/kbt)
+            w0 = np.exp((w0-np.max(w0))/kbt)
+            #w0 = np.exp((w0)/kbt)
         print("# Set non-uniform initial weights from file. Sum=", np.sum(w0), len(w0))
         assert len(w0)==(self.sim_data).shape[0],\
             "# Error. Initial weights (%d) must be the same size as the number of frames (%d)" % (len(w0),len(self.w0))
         assert self.success==None, "# Error. set_w0 must be called BEFORE optimization!"
-        self.w0 = np.copy(w0)
+        self.w0 = np.copy(w0)/np.sum(w0)
 
 
     # Optimize

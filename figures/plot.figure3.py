@@ -22,7 +22,7 @@ n_bins = 5
 nframes = 20000
 sqrt_nbins = 1./np.sqrt(n_bins)
 
-datat = ["couplings","noe","unoe"]
+datat = ["couplings","noe"]
 data = [[],[],[]]
 for i,d in enumerate(datat):
     for j in range(n_bins):
@@ -146,6 +146,8 @@ for j in range(n_bins):
     hh_0, ee_0 = np.histogram(data[j*binsize:(j+1)*binsize],density=True,bins=bins)
     hist_0.append(hh_0)
     hh_post, ee_1 = np.histogram(data[j*binsize:(j+1)*binsize],density=True,bins=bins,weights=weights)
+    print np.sum(hh_0*(ee_0[1]-ee_0[0]))
+    print np.sum(hh_post*(ee_1[1]-ee_1[0]))
     hist_post.append(hh_post)
 
 xx = 0.5*(ee_0[1:]+ee_0[:-1])
