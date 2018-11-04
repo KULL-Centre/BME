@@ -10,6 +10,7 @@ sandro_dot_bottaro(guesswhat)bio_dot_ku_dot_dk.
 If you use this script, please cite the following paper:
 
 ::
+
     @article{bottaro2018conformational,
     title={Conformational ensembles of RNA oligonucleotides from integrating NMR and molecular simulations},
     author={Bottaro, Sandro and Bussi, Giovanni and Kennedy, Scott D and Turner, Douglas H and Lindorff-Larsen, Kresten},
@@ -19,10 +20,10 @@ If you use this script, please cite the following paper:
     pages={eaar8521},
     year={2018},
     publisher={American Association for the Advancement of Science}
-    }
-::		
+    }		
 
 You should consider reading and citing the following relevant references as well:
+::
 
     @article{rozycki2011saxs,
     title={SAXS ensemble refinement of ESCRT-III CHMP3 conformational transitions},
@@ -35,6 +36,9 @@ You should consider reading and citing the following relevant references as well
     publisher={Elsevier}
     }
     
+    
+::
+
     @article{hummer2015bayesian,
     title={Bayesian ensemble refinement by replica simulations and reweighting},
     author={Hummer, Gerhard and K{\"o}finger, J{\"u}rgen},
@@ -45,7 +49,9 @@ You should consider reading and citing the following relevant references as well
     year={2015},
     publisher={AIP Publishing}
     }
-    
+
+::
+
     @article{cesari2016combining,
     title={Combining simulations and solution experiments as a paradigm for RNA force field refinement},
     author={Cesari, Andrea and Gil-Ley, Alejandro and Bussi, Giovanni},
@@ -56,7 +62,10 @@ You should consider reading and citing the following relevant references as well
     year={2016},
     publisher={ACS Publications}
     }
-		
+
+
+::
+
     @article{cesari2018using,
     title={Using the maximum entropy principle to combine simulations and solution experiments},
     author={Cesari, Andrea and Rei{\ss}er, Sabine and Bussi, Giovanni},
