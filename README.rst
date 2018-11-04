@@ -9,7 +9,7 @@ For further questions, send an email to
 sandro_dot_bottaro(guesswhat)bio_dot_ku_dot_dk.
 If you use this script, please cite the following paper:
 
-`
+::
     @article{bottaro2018conformational,
     title={Conformational ensembles of RNA oligonucleotides from integrating NMR and molecular simulations},
     author={Bottaro, Sandro and Bussi, Giovanni and Kennedy, Scott D and Turner, Douglas H and Lindorff-Larsen, Kresten},
@@ -20,7 +20,7 @@ If you use this script, please cite the following paper:
     year={2018},
     publisher={American Association for the Advancement of Science}
     }
-`		
+::		
 
 You should consider reading and citing the following relevant references as well:
 
