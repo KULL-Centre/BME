@@ -3,7 +3,7 @@ import os
 import sys
 bme_path = os.getcwd()[:-8]
 # here append the path to the bme script
-sys.path.append(cwd)
+sys.path.append(bme_path)
 import bme_reweight as bme
 
 # define name of experimental datafiles
