@@ -156,7 +156,7 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=None,cols=None):
     bcalc_1 = back_calc(sim_data,w_opt)
         
     # write to file.
-    fh_stats.write("# %s vs. %s srel=%8.4e\n" % (exp_file.split("/")[-1],sim_file.split("/")[-1],srel(w0,w_opt)))
+    fh_stats.write("# %s vs. %s srel=%8.4e\n" % (exp_file.split("/")[-1],sim_file.split("/")[-1],-srel(w0,w_opt)))
     fh_stats.write("#  %-15s %9s %9s %9s %9s \n" % ("Label","avg exp","sigma exp","avg before","avg after"))
     chisq_dist_0 = 0.0
     chisq_dist_1 = 0.0
@@ -390,7 +390,7 @@ class Reweight:
             srel1 = srel(self.w0,w_opt)
             #print("# Minimization successful")
             #print("Final average chi squared   %10.4f, srel %10.4f " % (chi_sq1, srel(self.w0,w_opt)))
-            return chi_sq0, chi_sq1, srel1 
+            return chi_sq0, chi_sq1, -srel1 
         else:
             print("# ERROR - Minimization failed. Perhaps theta is too small, or there is some bug.")
             print("# exit message:", result.message)
