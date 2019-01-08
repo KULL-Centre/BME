@@ -1,4 +1,5 @@
-BME - Integrating Molecular Simulation and Experimental Data: A Bayesian/Maximum Entropy Reweighting Approach
+Integrating Molecular Simulation and Experimental Data: 
+A Bayesian/Maximum Entropy Approach
 ==============
 
 This is a Python script to perform ensemble refinement using the Bayesian/MaxEnt (BME) approach.
