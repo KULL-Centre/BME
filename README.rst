@@ -1,4 +1,5 @@
-# BME - Integrating Molecular Simulation and Experimental Data: A Bayesian/Maximum Entropy Reweighting Approach
+BME - Integrating Molecular Simulation and Experimental Data: A Bayesian/Maximum Entropy Reweighting Approach
+==============
 
 This is a Python script to perform ensemble refinement using the Bayesian/MaxEnt (BME) approach.
 You may want to use this code when you have a molecular simulation for which calculated averages do not match available experimental data (eg chemical shifts, NOE, scalar couplings, SAXS measurements, etc.). In this case, you can use the experimental data to perform an a posteriori correction of your simulation.
@@ -16,25 +17,35 @@ The correction comes in the form of a new set of weights, one per frame in your 
    }
 
 
-# Requirements 
-1. Python>=2.7 or Python>=3.3
-2. Numpy, Scipy libraries
-3. Jupyter and Matplotlib (for notebooks only)
-   
-# Download 
+Requirements 
+------------
+
+1) Python>=2.7 or Python>=3.3
+
+2) Numpy, Scipy libraries
+
+3) Jupyter and Matplotlib (for notebooks only)
+  
+  
+Download 
+-----------
+
 You can download a .zip file by clicking on the green button above or using git
 
 `git clone https://github.com/sbottaro/BME.git`
 
 
-# Examples
+Examples
+------------
 
 Simple examples can be found in the `examples` folder. The `notebook` folder contains more detailed examples in form of jupyter notebooks. 
 Note also that the software can be used from the commandline:
 
    python bme.py --exp exp_datafile --calc calc_datafile -o outfile --theta 1.0
 
-# Contacts, refernces and other stuff. 
+Contacts, references and other stuff
+--------------
+
 For further questions, send an email to sandro_dot_bottaro(guesswhat)dot_iit_dot_it
 You may consider reading and citing the following relevant references as well:
 
