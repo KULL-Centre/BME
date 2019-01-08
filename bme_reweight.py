@@ -33,7 +33,6 @@ def back_calc(sim_data,weights):
 
 # calculate chi square 
 def chi_square(exp_data,sim_data,weights,bounds=None):
-    
     diff = back_calc(sim_data,weights)-exp_data[:,0]
     if(bounds==None):
         return np.sum((diff*diff)/exp_data[:,1])
@@ -124,7 +123,7 @@ def read_sim(filename):
     return data
 
 
-def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=None,cols=None):
+def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=[],cols=[]):
         
     fname_stats = "%s.stats.dat" % (outfile)
     fh_stats  = open(fname_stats,'w')
@@ -132,14 +131,9 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=None,cols=None):
     labels, bounds, exp_data, data_type,noe_power =  read_exp(exp_file)
             
     sim_data = read_sim(sim_file)
-    if(data_type=="NOE"):
-        sim_data = np.power(sim_data,-noe_power)
-
-    assert len(labels) == len(sim_data[0]), \
-        "# Number of rows in %s not equal to number of columns in %s" % (len(labels),len(sim_data[0]))
     
-    if(rows==None): rows = range(sim_data.shape[0])
-    if(cols==None): cols = range(sim_data.shape[1])
+    if(len(rows)==0): rows = range(sim_data.shape[0])
+    if(len(cols)==0): cols = range(sim_data.shape[1])
 
     exp_data = np.array(exp_data)[cols,:]
     sim_data = np.array(sim_data)[rows,:]
@@ -148,12 +142,35 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=None,cols=None):
     labels = [labels[k] for k in cols]
     assert len(w_opt) ==  len(sim_data),\
         "# Number of weights %d not equal to number of data from simulation (%d) %" (len(w_opt),len(sim_data))
+
+    if(data_type=="NOE"):
+        sim_data = np.power(sim_data,-noe_power)
+
+    L0 = 1.0
+    L1 = 1.0
+    if(data_type=="RDC"): 
+        ee = np.array([e[0] for e in exp_data])
+        prediction0 = np.average(sim_data,axis=0,weights=w0)
+        prediction1 = np.average(sim_data,axis=0,weights=w_opt)
+        print("WWW")
+        print(prediction0)
+        print(prediction1)
+        L0 = np.dot(ee,prediction0)/np.dot(prediction0,prediction0)
+        L1 = np.dot(ee,prediction1)/np.dot(prediction1,prediction1)
+        print("# RDC scaling factors %8.4e, %8.4e" % (L0,L1))
+
+
+    assert len(labels) == len(sim_data[0]), \
+        "# Number of rows in %s not equal to number of columns in %s" % (len(labels),len(sim_data[0]))
     
-    # before reweighting
-    chisq_0 = chi_square(exp_data,sim_data,w0,bounds=bounds)/len(exp_data)
-    chisq_1 = chi_square(exp_data,sim_data,w_opt,bounds=bounds)/len(exp_data)
-    bcalc_0 = back_calc(sim_data,w0)
-    bcalc_1 = back_calc(sim_data,w_opt)
+
+        
+    # before/after reweighting
+    chisq_0 = chi_square(exp_data,L0*sim_data,w0,bounds=bounds)/len(exp_data)
+    bcalc_0 = back_calc(L0*sim_data,w0)
+        
+    chisq_1 = chi_square(exp_data,L1*sim_data,w_opt,bounds=bounds)/len(exp_data)
+    bcalc_1 = back_calc(L1*sim_data,w_opt)
         
     # write to file.
     fh_stats.write("# %s vs. %s srel=%8.4e\n" % (exp_file.split("/")[-1],sim_file.split("/")[-1],-srel(w0,w_opt)))
@@ -161,6 +178,7 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=None,cols=None):
     chisq_dist_0 = 0.0
     chisq_dist_1 = 0.0
     for l in range(exp_data.shape[0]):
+        
         # convert to distances if is NOE
         fh_stats.write("   %-15s %9.3e %9.3e %9.3e %9.3e " % (labels[l],exp_data[l,0],np.sqrt(exp_data[l,1]),bcalc_0[l],bcalc_1[l]))
         if(data_type == "NOE"):
@@ -187,15 +205,18 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=None,cols=None):
         chisq_dist_0 /= len(exp_data)
         chisq_dist_1 /= len(exp_data)
         fh_stats.write("#  %-5s %8.4f %8.4f \n" % ("chi2 distance space",chisq_dist_0,chisq_dist_1))
-    fh_stats.close()
-    return chisq_0,chisq_1
+        fh_stats.close()
+        return chisq_dist_0,chisq_dist_1
+    else:
+        fh_stats.close()
+        return chisq_0,chisq_1
     
 
 # reweight class. 
 class Reweight:
 
     # initialize
-    def __init__(self,verbose=True):
+    def __init__(self,verbose=True,w0=[],kbt=None):
 
         self.exp_data = []
         self.sim_data = []
@@ -210,34 +231,59 @@ class Reweight:
         
         self.w0 = []
         self.w_opt = []
-        
-    # add data to class
-    def add_data(self,exp_data,sim_data,labels,bounds,rows=None,cols=None):
+        if(len(w0)!=0):
+            w0 = np.array(w0)
+            if(kbt!=None):
+                print("# Assuming weights given as minus free energies. w=exp(bias/kbt) kbt=%8.4f "  % kbt)
+                w0 = np.exp((w0-np.max(w0))/kbt)
+            print("# Set non-uniform initial weights from file. Sum=", np.sum(w0), len(w0))
+            self.w0 = np.copy(w0)/np.sum(w0)
 
-        if(rows==None): rows = range(sim_data.shape[0])
-        if(cols==None): cols = range(sim_data.shape[1])
+    # add data to class
+    def add_data(self,exp_data,sim_data,labels,bounds,cols):
+
+        #if(len(rows)==0): rows = range(sim_data.shape[0])
+        #if(len(cols)==0): cols = range(sim_data.shape[1])
         
-        sim_data1 = np.array(sim_data)[rows,:]
-        sim_data1 = sim_data1[:,cols]
+        #sim_data1 = np.array(sim_data)[rows,:]
+        #sim_data1 = sim_data1[:,cols]
+
+
         self.exp_data.extend(np.array(exp_data)[cols,:])
         if(len(self.sim_data)==0):
-            self.sim_data = sim_data1
+            self.sim_data = sim_data
         else:
-            self.sim_data = np.concatenate((self.sim_data,sim_data1),axis=1)
+            self.sim_data = np.concatenate((self.sim_data,sim_data),axis=1)
         self.labels.extend([labels[k] for k in cols])
         self.bounds.extend([bounds[k] for k in cols])
-        #self.w0.extend(np.ones(sim_data1.shape[0]))
 
     # load data from file
-    def load(self,exp_file,sim_file,rows=None,cols=None):
+    def load(self,exp_file,sim_file,rows=[],cols=[]):
 
         # read experimental data 
         labels, bounds, exp_data, data_type,noe_power =  read_exp(exp_file)
 
         # read simulation data
-        sim_data = read_sim(sim_file)
+        sim_data1 = read_sim(sim_file)
+        
+        if(len(rows)==0): rows = range(sim_data1.shape[0])
+        if(len(cols)==0): cols = range(sim_data1.shape[1])
+        
+        sim_data = np.array(sim_data1)[rows,:]
+        sim_data = sim_data[:,cols]
+
         if(data_type=="NOE"):
             sim_data = np.power(sim_data,-noe_power)
+
+        if(data_type=="RDC"):
+            ee = np.array([e[0] for e in exp_data])
+            if(len(self.w0)==0):
+                prediction = np.average(sim_data,axis=0)
+            else:
+                prediction = np.average(sim_data,axis=0,weights=self.w0)
+            L = np.dot(ee,prediction)/np.dot(prediction,prediction)
+            print("# RDC scaling factor %8.4e" % L)
+            sim_data *=	L
             
         assert len(labels) == sim_data.shape[1], "# Number of rows in exp (%d) not equal to number of columns in calc (%d)" % (len(labels),sim_data.shape[1])
 
@@ -248,17 +294,17 @@ class Reweight:
         for l in range(len(exp_data)):
 
             if(bounds[l][0] == 0.0  and mins[l]> exp_data[l][0]):
-                print("# Warning: expt boundary %s=%-10.4f is smaller than minimum value in simulation %-10.4f"\
+                print("# Warning: expt boundary %20s=%-10.4e is smaller than minimum value in simulation %-10.4e"\
                       % (labels[l],exp_data[l][0],mins[l]))
             if(bounds[l][1] == 0.0  and maxs[l] < exp_data[l][0]):
-                print("# Warning: expt boundary %s=%-10.4f is larger than maximum value in simulation %-10.4f"\
+                print("# Warning: expt boundary %20s=%-10.4e is larger than maximum value in simulation %-10.4e"\
                       % (labels[l],exp_data[l][0],mins[l]))
                 
             if(exp_data[l][0] > maxs[l]):
-                print("# Warning: expt average %s=%-10.4f is larger than maximum value in simulation %-10.4f"\
+                print("# Warning: expt average %20s=%-10.4e is larger than maximum value in simulation %-10.4e"\
                       % (labels[l],exp_data[l][0],maxs[l]))
             if(exp_data[l][0] < mins[l]):
-                print("# Warning: expt average %s=%-10.4f is smaller than minimum value in simulation %-10.4f"\
+                print("# Warning: expt average %20s=%-10.4e is smaller than minimum value in simulation %-10.4e"\
                       % (labels[l],exp_data[l][0],mins[l]))
 
             # if exp data is non-zero, normalize
@@ -268,24 +314,10 @@ class Reweight:
                 exp_data[l][1] /= ff**2
                 sim_data[:,l] /= ff
                 exp_data[l][0] /= ff
-                
-        self.add_data(exp_data,sim_data,labels,bounds,rows,cols)
+
+        self.add_data(exp_data,sim_data,labels,bounds,cols)
 
 
-
-    # set non-uniform weights
-    def set_w0(self,w0,kbt=None):
-
-        w0 = np.array(w0)
-        if(kbt!=None):
-            print("# Assuming weights given as minus free energies. w=exp(bias/kbt) kbt=%8.4f "  % kbt)
-            w0 = np.exp((w0-np.max(w0))/kbt)
-            #w0 = np.exp((w0)/kbt)
-        print("# Set non-uniform initial weights from file. Sum=", np.sum(w0), len(w0))
-        assert len(w0)==(self.sim_data).shape[0],\
-            "# Error. Initial weights (%d) must be the same size as the number of frames (%d)" % (len(w0),len(self.w0))
-        assert self.success==None, "# Error. set_w0 must be called BEFORE optimization!"
-        self.w0 = np.copy(w0)/np.sum(w0)
 
 
     # Optimize
@@ -409,7 +441,7 @@ class Reweight:
         return self.w_opt
 
         
-    def weight_exp(self,exp_file,sim_file,outfile,rows=None,cols=None):
+    def weight_exp(self,exp_file,sim_file,outfile,rows=[],cols=[]):
         
         return weight_exp(exp_file,sim_file,self.w0,self.w_opt,outfile,rows,cols)
         
