@@ -224,6 +224,7 @@ class Reweight:
         self.method = None
         self.lambdas = None
         self.success = None
+        self.renormalize_w0 = False
         
         self.w0 = []
         self.w_opt = []
@@ -245,14 +246,18 @@ class Reweight:
         #sim_data1 = sim_data1[:,cols]
 
 
-        self.exp_data.extend(np.array(exp_data)[cols,:])
+        #print(exp_data)
+        #print(np.copy(exp_data))
         if(len(self.sim_data)==0):
             self.sim_data = sim_data
+            self.exp_data = np.copy(exp_data)[cols,:]
         else:
             self.sim_data = np.concatenate((self.sim_data,sim_data),axis=1)
+            self.exp_data = np.concatenate((self.exp_data,np.array(exp_data)[cols,:]),axis=0)
         self.labels.extend([labels[k] for k in cols])
         self.bounds.extend([bounds[k] for k in cols])
-
+        print(self.exp_data.shape)
+        
     # load data from file
     def load(self,exp_file,sim_file,rows=[],cols=[]):
 
@@ -264,7 +269,10 @@ class Reweight:
         
         if(len(rows)==0): rows = range(sim_data1.shape[0])
         if(len(cols)==0): cols = range(sim_data1.shape[1])
-        
+        if(len(self.w0)!=0 and self.renormalize_w0==False):
+            self.w0 = np.array(self.w0)[rows]/np.sum(np.array(self.w0[rows]))
+            self.renormalize_w0= True
+            
         sim_data = np.array(sim_data1)[rows,:]
         sim_data = sim_data[:,cols]
 
