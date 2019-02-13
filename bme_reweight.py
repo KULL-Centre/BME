@@ -140,8 +140,7 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=[],cols=[]):
     sim_data = sim_data[:,cols]
     bounds = [bounds[k] for k in cols]
     labels = [labels[k] for k in cols]
-    assert len(w_opt) ==  len(sim_data),\
-        "# Number of weights %d not equal to number of data from simulation (%d) %" (len(w_opt),len(sim_data))
+    assert len(w_opt) ==  len(sim_data),"# Number of weights %d not equal to number of data from simulation (%d) " % (len(w_opt),len(sim_data))
 
     if(data_type=="NOE"):
         sim_data = np.power(sim_data,-noe_power)
@@ -152,9 +151,6 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=[],cols=[]):
         ee = np.array([e[0] for e in exp_data])
         prediction0 = np.average(sim_data,axis=0,weights=w0)
         prediction1 = np.average(sim_data,axis=0,weights=w_opt)
-        #print("WWW")
-        #print(prediction0)
-        #print(prediction1)
         L0 = np.dot(ee,prediction0)/np.dot(prediction0,prediction0)
         L1 = np.dot(ee,prediction1)/np.dot(prediction1,prediction1)
         print("# RDC scaling factors %8.4e, %8.4e" % (L0,L1))
