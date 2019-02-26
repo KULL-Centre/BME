@@ -16,12 +16,12 @@ num=XX
 spec=XX
 
 # define training test
-exp_train = '../data/couplings_exp.dat'
-calc_train = '../data/couplings_calc.dat'
+exp_train = '%s/data/couplings_exp.dat' % (bme_path)
+calc_train = '%s/data/couplings_calc.dat' % (bme_path)
 
 # define test set 
-exp_test='../data/NOE_exp.dat'
-calc_test='../data/NOE_calc.dat'
+exp_test='%s/data/NOE_exp.dat' % (bme_path)
+calc_test='%s/data/NOE_calc.dat' % (bme_path)
 
 
 def test():
