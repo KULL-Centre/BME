@@ -256,7 +256,6 @@ class Reweight:
             self.exp_data = np.concatenate((self.exp_data,np.array(exp_data)[cols,:]),axis=0)
         self.labels.extend([labels[k] for k in cols])
         self.bounds.extend([bounds[k] for k in cols])
-        print(self.exp_data.shape)
         
     # load data from file
     def load(self,exp_file,sim_file,rows=[],cols=[]):
