@@ -29,6 +29,6 @@ def comp(filename):
         assert len(el1)==len(el2), "reference and test files %s have different shapes " % filename.split("/")[-1]
         for it1,it2 in zip(el1,el2):
             if(type(it1)==float):
-                assert (it1-it2)**2<1.E-05, "reference and test files %s give different results " % filename.split("/")[-1]
+                assert (it1-it2)**2<1.E-05, "reference and test files %s give different results %10.4e %10.4e " % (filename.split("/")[-1],it1,it2)
             else:
-                assert it1==it2, "reference and test files %s give different results " % filename.split("/")[-1]
+                assert it1==it2, "reference and test files %s give different results %s %s" % (filename.split("/")[-1],it1,it2)

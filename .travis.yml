@@ -10,5 +10,6 @@ install:
    - pip install nose2
 script:
   # Your test script goes here
+    - bash decompress.sh
     - nose2 
     

@@ -10,3 +10,6 @@ examples/*.dat
 notebook/*.dat
 notebook/.ipynb_checkpoints
 
+
+data/*calc.dat
+test/tmp

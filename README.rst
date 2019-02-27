@@ -38,6 +38,7 @@ You can download a .zip file by clicking on the green button above or using git
 
 `git clone https://github.com/sbottaro/BME.git`
 
+A number sample datasets are available in the data folder. Make sure to uncompress the files before running the examples and tests using the command `bzip2 -d `
 
 Examples
 ------------
