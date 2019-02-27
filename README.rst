@@ -24,7 +24,7 @@ The correction comes in the form of a new set of weights, one per frame in your 
 Requirements 
 ------------
 
-1) Python>=2.7 or Python>=3.3
+1) Python>=3.4
 
 2) Numpy, Scipy libraries
 
