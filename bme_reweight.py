@@ -330,8 +330,18 @@ class Reweight:
             
             # weights
             arg = -np.sum(lambdas[np.newaxis,:]*self.sim_data,axis=1)
-            if(np.max(arg)>300.):arg -= np.max(arg)
-            ww  = self.w0*np.exp(arg)
+            # 
+            overflow = np.zeros(arg.shape)
+            tmax = np.log((sys.float_info.max)/50.)
+            tmin = np.log((sys.float_info.min)/50.)
+            overflow[np.where(arg>tmax)] =  tmax
+            overflow[np.where(arg<tmin)] =  tmin
+            arg -= overflow
+            arg += overflow
+
+            #if(np.max(arg)>300.):arg -= np.max(arg)
+            ww  = (self.w0*np.exp(arg))/np.exp(overflow)
+            #ww  = self.w0*np.exp(arg)
             # normalization 
             zz = np.sum(ww)
             if(zz < 1.0E-300):
@@ -359,7 +369,8 @@ class Reweight:
             # gradient
             jac = self.exp_data[:,0] + lambdas*err - avg
 
-            return  fun,jac
+            # divide by theta to avoid numerical problems
+            return  fun/self.theta,jac/self.theta
 
         
         
@@ -383,8 +394,9 @@ class Reweight:
         self.method = method
         self.exp_data = np.array(self.exp_data)
         self.sim_data = np.array(self.sim_data)
-        print("# exp data: %s" % (str(self.exp_data.shape)))
-        print("# calc data: %s" % (str(self.sim_data.shape)))
+        #print("# exp data: %s" % (str(self.exp_data.shape)))
+        #print("# calc data: %s" % (str(self.sim_data.shape)))
+        print("# theta: %s" % str(self.theta))
         # first, calculate initial chi squared and RMSD
 
         chi_sq0 = chi_square(self.exp_data,self.sim_data,self.w0,self.bounds)/len(self.exp_data)
