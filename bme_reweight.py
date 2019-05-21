@@ -311,7 +311,8 @@ class Reweight:
                       % (labels[l],exp_data[l][0],mins[l]))
 
             # if exp data is non-zero, normalize
-            ff = 1.0            
+            ff = 1.0
+            
             if(np.abs(exp_data[l][0])>1.0E-05):
                 ff = exp_data[l][0]
                 exp_data[l][1] /= ff**2
@@ -405,7 +406,7 @@ class Reweight:
         
         if(method=="MAXENT"):
             
-            opt={'maxiter':50000,'disp':False,'ftol':1.0e-50}
+            opt={'maxiter':50000,'disp':False,'ftol':1.0e-10}
             meth = "L-BFGS-B"
             lambdas=np.zeros(self.exp_data.shape[0])
 
