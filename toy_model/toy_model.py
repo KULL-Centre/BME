@@ -40,7 +40,7 @@ cov1_true = [[0.1,0],[0,0.05]]
 mean2_true = [3,7.5]
 cov2_true = [[0.12,0],[0,0.2]]
 mean3_true = [7,5.5]
-cov3_true = [[0.1,0.05],[0.1,0.8]]
+cov3_true = [[0.1,0.1],[0.1,0.8]]
 # Construct Gaussians
 x1, y1 = np.random.multivariate_normal(mean1_true, cov1_true, f1_true).T  
 x2, y2 = np.random.multivariate_normal(mean2_true, cov2_true, f2_true).T 
@@ -85,10 +85,10 @@ exp_sigma = np.array([0.8,0.6])
 avgx_0 = np.average(x_0)
 avgy_0 = np.average(y_0)
 
-print "# True average  x=%5.3f y=%5.3f" % (avgx_true,avgy_true)
-print "# Experimental average  x=%5.3f y=%5.3f" % (avgx_exp,avgy_exp)
-print "# Sigma x=%5.3f sigma y=%5.3f" % (exp_sigma[0],exp_sigma[1])
-print "# Prior average x=%5.3f y=%5.3f" % (avgx_0,avgy_0)
+print("# True average  x=%5.3f y=%5.3f" % (avgx_true,avgy_true))
+print("# Experimental average  x=%5.3f y=%5.3f" % (avgx_exp,avgy_exp))
+print("# Sigma x=%5.3f sigma y=%5.3f" % (exp_sigma[0],exp_sigma[1]))
+print("# Prior average x=%5.3f y=%5.3f" % (avgx_0,avgy_0))
 
 ########################
 # Here starts the optimization
@@ -101,16 +101,16 @@ meth="L-BFGS-B"
 
 # do optimization
 samples = np.array([x_0,y_0])
-print "# Start minimization. Theta is set to %4.1f" % theta
+print("# Start minimization. Theta is set to %4.1f" % theta)
 result = optimize.minimize(gamma,lambdas,options=opt,method=meth)
-print "# Minimization was succesful? %s" % result.success
+print("# Minimization was succesful? %s" % result.success)
 # calculate weights
 w_post = np.exp(-np.sum(result.x[:,np.newaxis]*myfunc(samples),axis=0))
 w_post /= np.sum(w_post)
 avg_post = np.sum(w_post[np.newaxis,:]*myfunc(samples),axis=1)
-print "# Posterior average x=%5.3f y=%5.3f" % (avg_post[0],avg_post[1])
-print "# theta %4.1f Neff %5.3f " % (theta, np.exp(-np.sum(w_post*np.log(len(w_post)*w_post)))),
-print "chix %5.3f chiy %5.3f" % (np.abs((avg_post[0]-avgx_exp))/exp_sigma[0],np.abs((avg_post[1]-avgy_exp))/exp_sigma[1])
+print("# Posterior average x=%5.3f y=%5.3f" % (avg_post[0],avg_post[1]))
+print("# theta %4.1f Neff %5.3f " % (theta, np.exp(-np.sum(w_post*np.log(len(w_post)*w_post)))))
+print("chix %5.3f chiy %5.3f" % (np.abs((avg_post[0]-avgx_exp))/exp_sigma[0],np.abs((avg_post[1]-avgy_exp))/exp_sigma[1]))
 
 
 ########################################
@@ -172,13 +172,13 @@ cols2 = sns.color_palette("YlOrRd")
 cols3 = sns.color_palette("Blues")
 
 # plot reference distribution
-hhr,xer,yer = np.histogram2d(x_true,y_true,bins=bins2d,normed=True)
+hhr,xer,yer = np.histogram2d(x_true,y_true,bins=bins2d,density=True)
 CS = axScatter.contourf(0.5*(xer[1:] + xer[:-1]), 0.5*(yer[1:] + yer[:-1]),hhr.T,inline=1, fontsize=10,levels=lv,colors=cols1)
 
-hh2r,ee2r = np.histogram(x_true,bins=binsx,normed=True)
+hh2r,ee2r = np.histogram(x_true,bins=binsx,density=True)
 axHistx.plot(0.5*(ee2r[1:]+ee2r[:-1]),hh2r,lw=lw,c=cols1[-1],label="Sample")
 
-hh2r,ee2r = np.histogram(y_true,bins=binsy,normed=True)
+hh2r,ee2r = np.histogram(y_true,bins=binsy,density=True)
 axHisty.plot(hh2r,0.5*(ee2r[1:]+ee2r[:-1]),lw=lw,c=cols1[-1])
 
 axScatter.errorbar(avgx_exp,avgy_exp,xerr=exp_sigma[0],yerr=exp_sigma[1],fmt="s",capthick=0.5,capsize=2,color="m",zorder=10)
@@ -194,12 +194,12 @@ pop2_true = 1.-pop3_true-pop1_true
 # Now plot P0
 #######################################################
 
-hh,xe,ye = np.histogram2d(x_0,y_0,bins=bins2d,normed=True)
+hh,xe,ye = np.histogram2d(x_0,y_0,bins=bins2d,density=True)
 CS = axScatter.contour(0.5*(xe[1:] + xe[:-1]), 0.5*(ye[1:] + ye[:-1]),hh.T,inline=1, fontsize=10,levels=lv,colors=cols2)
-hh2,ee2 = np.histogram(x_0,bins=binsx,normed=True)
+hh2,ee2 = np.histogram(x_0,bins=binsx,density=True)
 axHistx.plot(0.5*(ee2[1:]+ee2[:-1]),hh2,lw=lw,c=cols2[-2],label="Sample")
 
-hh2,ee2 = np.histogram(y_0,bins=binsy,normed=True)
+hh2,ee2 = np.histogram(y_0,bins=binsy,density=True)
 axHisty.plot(hh2,0.5*(ee2[1:]+ee2[:-1]),lw=lw,c=cols2[-2])
 axScatter.scatter(avgx_0,avgy_0,marker="*",facecolors='none',edgecolors=cols2[-2],s=100,linewidth=1.5)
 pop = np.sum(hh)
@@ -252,16 +252,16 @@ axScatter.set_xlim(xmin,xmax)
 
 CS = axScatter.contourf(0.5*(xer[1:] + xer[:-1]), 0.5*(yer[1:] + yer[:-1]),hhr.T,inline=1, fontsize=10,levels=lv,colors=cols1)
 
-hh2r,ee2r = np.histogram(x_true,bins=binsx,normed=True)
+hh2r,ee2r = np.histogram(x_true,bins=binsx,density=True)
 axHistx.plot(0.5*(ee2r[1:]+ee2r[:-1]),hh2r,lw=lw,c='k',label="Sample")
-hh2r,ee2r = np.histogram(y_true,bins=binsy,normed=True)
+hh2r,ee2r = np.histogram(y_true,bins=binsy,density=True)
 axHisty.plot(hh2r,0.5*(ee2r[1:]+ee2r[:-1]),lw=lw,c='k')
 
 ###############################
 # Plot posterior
 ###############################
 
-hh,xe,ye = np.histogram2d(x_0,y_0,bins=bins2d,normed=True,weights=w_post)
+hh,xe,ye = np.histogram2d(x_0,y_0,bins=bins2d,density=True,weights=w_post)
 pop = np.sum(hh)
 pop3_post = np.sum(hh[idx_xu,:])/pop
 pop1_post = np.sum(hh[idx_xl,:][:,idx_yl])/pop
@@ -269,10 +269,10 @@ pop2_post = 1.-pop3_post-pop1_post
 
 CS = axScatter.contour(0.5*(xe[1:] + xe[:-1]), 0.5*(ye[1:] + ye[:-1]),hh.T,inline=1, fontsize=10,levels=lv,colors=cols3)
 
-hh2,ee2 = np.histogram(x_0,bins=binsx,normed=True,weights=w_post)
+hh2,ee2 = np.histogram(x_0,bins=binsx,density=True,weights=w_post)
 axHistx.plot(0.5*(ee2[1:]+ee2[:-1]),hh2,lw=lw,c=cols3[-2],label="Sample")
 
-hh2,ee2 = np.histogram(y_0,bins=binsy,normed=True,weights=w_post)
+hh2,ee2 = np.histogram(y_0,bins=binsy,density=True,weights=w_post)
 axHisty.plot(hh2,0.5*(ee2[1:]+ee2[:-1]),lw=lw,c=cols3[-2])
 #axScatter.errorbar(avgx_true,avgy_true,xerr=exp_sigma[0],yerr=exp_sigma[1],fmt="s",capthick=0.5,capsize=2,color="k")
 axScatter.errorbar(avgx_exp,avgy_exp,xerr=exp_sigma[0],yerr=exp_sigma[1],fmt="s",capthick=0.5,capsize=2,color="m",zorder=10)
@@ -297,10 +297,10 @@ plt.close()
 ###############################################
 ## Print populations of the different states ##
 ###############################################
-print "# Populations"
-print " True      %5.1f %5.1f %5.1f " % ((pop1_true*100.0),(pop2_true*100),(pop3_true*100))
-print " Prior     %5.1f %5.1f %5.1f " % ((pop1_0*100.0),(pop2_0*100),(pop3_0*100))
-print " Posterior %5.1f %5.1f %5.1f " % ((pop1_post*100.0),(pop2_post*100),(pop3_post*100))
+print("# Populations")
+print(" True      %5.1f %5.1f %5.1f " % ((pop1_true*100.0),(pop2_true*100),(pop3_true*100)))
+print(" Prior     %5.1f %5.1f %5.1f " % ((pop1_0*100.0),(pop2_0*100),(pop3_0*100)))
+print(" Posterior %5.1f %5.1f %5.1f " % ((pop1_post*100.0),(pop2_post*100),(pop3_post*100)))
 
 
 
@@ -308,17 +308,17 @@ print " Posterior %5.1f %5.1f %5.1f " % ((pop1_post*100.0),(pop2_post*100),(pop3
 fig, axs =plt.subplots(2,1,figsize=(4.1, 3.6))
 ii1 = [x for x in range(len(x1))]
 axs[1].scatter(ii1,w_post[0:len(x1)],s=0.2,color=cols3[-2])
-axs[1].text(ii1[len(ii1)/2],0.15e-05,"S1",ha='center')
+axs[1].text(ii1[int(len(ii1)/2)],0.15e-05,"S1",ha='center')
 
 off= len(ii1)+0
 ii2 = [x+off for x in range(len(x2))]
 axs[1].scatter(ii2,w_post[len(x1):len(x1)+len(x2)],s=0.2,color=cols3[-2])
-axs[1].text(ii2[len(ii2)/2],0.15e-05,"S2",ha='center')
+axs[1].text(ii2[int(len(ii2)/2)],0.15e-05,"S2",ha='center')
 
 off += len(ii2)+0
 ii3 = [x+off for x in range(len(x3))]
 axs[1].scatter(ii3,w_post[len(x1)+len(x2):],s=0.2,color=cols3[-2])
-axs[1].text(ii3[len(ii3)/2],0.15e-05,"S3",ha='center')
+axs[1].text(ii3[int(len(ii3)/2)],0.15e-05,"S3",ha='center')
 
 axs[1].set_yscale('log')
 

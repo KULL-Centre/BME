@@ -15,7 +15,7 @@ calc_couplings = '../data/couplings_calc.dat'
 # initalize class, reads experimental and simulated data.
 n_frames = 20000
 n_bins = 5
-bin_size = n_frames/n_bins
+bin_size = int(n_frames/n_bins)
 bins = range(0,n_frames+bin_size,bin_size)
 
 theta=2

@@ -16,7 +16,7 @@ calc_couplings = '../data/couplings_calc.dat'
 
 n_frames = 20000
 n_bins = 5
-bin_size = n_frames/n_bins
+bin_size = int(n_frames/n_bins)
 bins = range(0,n_frames+bin_size,bin_size)
 
 thetas= [0.1,0.5,1,2,3,4,5,7.5,10,15,20,40,50,100,500,5000]
