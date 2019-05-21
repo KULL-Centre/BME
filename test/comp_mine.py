@@ -33,6 +33,6 @@ def comp(filename):
                 it2=float(str(it2).split("=")[1])
                 assert (it1-it2)**2<1.E-04, "reference and test files %s give different results %10.4e %10.4e " % (filename.split("/")[-1],it1,it2)
             elif(type(it1)==float):
-                assert (it1-it2)**2<1.E-05, "reference and test files %s give different results %10.4e %10.4e " % (filename.split("/")[-1],it1,it2)
+                assert (it1-it2)**2<1.E-04, "reference and test files %s give different results %10.4e %10.4e " % (filename.split("/")[-1],it1,it2)
             else:
                 assert it1==it2, "reference and test files %s give different results %s %s" % (filename.split("/")[-1],it1,it2)
