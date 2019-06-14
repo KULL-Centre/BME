@@ -371,9 +371,16 @@ class Reweight:
             
             # gradient
             jac = self.exp_data[:,0] + lambdas*err - avg
-
+            
+            # hessian
+            q_w = np.dot(ww,self.sim_data)
+            hess = np.einsum('k, ki, kj->ij',ww,self.sim_data,
+                   self.sim_data) - \
+                   np.outer(q_w,q_w) + \
+                   np.diag(err)
+                   
             # divide by theta to avoid numerical problems
-            return  fun/self.theta,jac/self.theta
+            return  fun/self.theta,jac/self.theta, hess/self.theta
 
         
         
@@ -414,7 +421,7 @@ class Reweight:
             lambdas=np.zeros(self.exp_data.shape[0])
             if np.any(np.array(self.bounds)):
                 result = optimize.minimize(func_maxent_gauss,lambdas,
-                    options=opt,method=meth,  jac=True,
+                    options=opt,method=meth,  jac=True, hess=True,
                     bounds=self.bounds)
             else:
                 result = optimize.minimize(func_maxent_gauss,lambdas,
