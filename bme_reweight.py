@@ -14,7 +14,7 @@
 from __future__ import print_function
 
 import numpy as np
-from scipy import optimize
+from scipy import optimize #version >0.13.0 for dogleg optimizer
 import sys
 import warnings
         
@@ -212,7 +212,7 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=[],cols=[]):
 class Reweight:
 
     # initialize
-    def __init__(self,verbose=True,w0=[],kbt=None):
+    def __init__(self,verbose=True,w0=[],kbt=None, opt_method="L-BFGS-B"):
 
         self.exp_data = []
         self.sim_data = []
@@ -235,7 +235,7 @@ class Reweight:
                 w0 = np.exp((w0-np.max(w0))/kbt)
             print("# Set non-uniform initial weights from file. Sum=", np.sum(w0), len(w0))
             self.w0 = np.copy(w0)/np.sum(w0)
-
+        self.opt_method = opt_method
     # add data to class
     def add_data(self,exp_data,sim_data,labels,bounds,cols):
 
@@ -407,7 +407,7 @@ class Reweight:
         if(method=="MAXENT"):
             
             opt={'maxiter':50000,'disp':False,'ftol':1.0e-10}
-            meth = "L-BFGS-B"
+            meth = self.opt_method
             lambdas=np.zeros(self.exp_data.shape[0])
 
             result = optimize.minimize(func_maxent_gauss,lambdas,options=opt,method=meth,jac=True,bounds=self.bounds)
