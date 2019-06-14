@@ -272,8 +272,10 @@ class Reweight:
             self.w0 = np.array(self.w0)[rows]/np.sum(np.array(self.w0[rows]))
             self.renormalize_w0= True
             
+        labels = np.array(labels)[cols]
         sim_data = np.array(sim_data1)[rows,:]
         sim_data = sim_data[:,cols]
+        exp_data = np.array(exp_data)[cols, :]
 
         if(data_type=="NOE"):
             sim_data = np.power(sim_data,-noe_power)
