@@ -414,11 +414,11 @@ class Reweight:
             lambdas=np.zeros(self.exp_data.shape[0])
             if np.any(np.array(self.bounds)):
                 result = optimize.minimize(func_maxent_gauss,lambdas,
-                    options=opt,method=meth, tol=tol, jac=True,
+                    options=opt,method=meth,  jac=True,
                     bounds=self.bounds)
             else:
                 result = optimize.minimize(func_maxent_gauss,lambdas,
-			        options=opt,method=meth, tol=tol, jac=True)
+			        options=opt,method=meth, jac=True)
             arg = -np.sum(result.x[np.newaxis,:]*self.sim_data,axis=1)
             if(np.max(arg)>300.):arg -= np.max(arg)
 
