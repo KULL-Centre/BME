@@ -408,11 +408,17 @@ class Reweight:
         
         if(method=="MAXENT"):
             
-            opt={'maxiter':50000,'disp':False,'ftol':1.0e-10}
+            opt={'maxiter':50000,'disp':False}
+            tol = 1.0e-10
             meth = self.opt_method
             lambdas=np.zeros(self.exp_data.shape[0])
-
-            result = optimize.minimize(func_maxent_gauss,lambdas,options=opt,method=meth,jac=True,bounds=self.bounds)
+            if np.any(np.array(self.bounds)):
+                result = optimize.minimize(func_maxent_gauss,lambdas,
+                    options=opt,method=meth, tol=tol, jac=True,
+                    bounds=self.bounds)
+            else:
+                result = optimize.minimize(func_maxent_gauss,lambdas,
+			        options=opt,method=meth, tol=tol, jac=True)
             arg = -np.sum(result.x[np.newaxis,:]*self.sim_data,axis=1)
             if(np.max(arg)>300.):arg -= np.max(arg)
 
