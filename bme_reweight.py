@@ -443,7 +443,7 @@ class Reweight:
         if(method=="MAXENT"):
             
             opt={'maxiter':50000,'disp':False}
-            tol = 1.0e-10
+            tol = 1.0e-8
             meth = self.opt_method
             lambdas=np.zeros(self.exp_data.shape[0])
 
