@@ -443,7 +443,6 @@ class Reweight:
         if(method=="MAXENT"):
             
             opt={'maxiter':50000,'disp':False}
-            tol = 1.0e-8
             meth = self.opt_method
             lambdas=np.zeros(self.exp_data.shape[0])
 
@@ -452,14 +451,14 @@ class Reweight:
                     meth = 'trust-constr'
                 result = optimize.minimize(func_maxent_gauss,lambdas,
                     options=opt,method=meth,  jac=True, 
-                    hess=hess_maxent_gauss, tol=tol,
+                    hess=hess_maxent_gauss,
                     bounds=self.bounds)
             else:
                 if meth == 'trust':
                     meth = 'trust-exact'
                 result = optimize.minimize(func_maxent_gauss,lambdas,
 			        options=opt,method=meth, jac=True, 
-			        hess=hess_maxent_gauss, tol=tol)
+			        hess=hess_maxent_gauss)
             arg = -np.sum(result.x[np.newaxis,:]*self.sim_data,axis=1)
             if(np.max(arg)>300.):arg -= np.max(arg)
 
