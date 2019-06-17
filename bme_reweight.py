@@ -451,13 +451,15 @@ class Reweight:
                 if meth == 'trust':
                     meth = 'trust-constr'
                 result = optimize.minimize(func_maxent_gauss,lambdas,
-                    options=opt,method=meth,  jac=True, hess=True,
+                    options=opt,method=meth,  jac=True, 
+                    hess=hess_maxent_gauss, tol=tol,
                     bounds=self.bounds)
             else:
                 if meth == 'trust':
                     meth = 'trust-exact'
                 result = optimize.minimize(func_maxent_gauss,lambdas,
-			        options=opt,method=meth, jac=True, hess=hess_maxent_gauss)
+			        options=opt,method=meth, jac=True, 
+			        hess=hess_maxent_gauss, tol=tol)
             arg = -np.sum(result.x[np.newaxis,:]*self.sim_data,axis=1)
             if(np.max(arg)>300.):arg -= np.max(arg)
 
