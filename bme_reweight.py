@@ -212,7 +212,7 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=[],cols=[]):
 class Reweight:
 
     # initialize
-    def __init__(self,verbose=True,w0=[],kbt=None, opt_method="L-BFGS-B"):
+    def __init__(self,verbose=True,w0=[],kbt=None, opt_method="trust"):
 
         self.exp_data = []
         self.sim_data = []
@@ -371,7 +371,34 @@ class Reweight:
             
             # gradient
             jac = self.exp_data[:,0] + lambdas*err - avg
+                   
+            # divide by theta to avoid numerical problems
+            return  fun/self.theta,jac/self.theta
+
+        def hess_maxent_gauss(lambdas):
             
+            # weights
+            arg = -np.sum(lambdas[np.newaxis,:]*self.sim_data,axis=1)
+            # 
+            overflow = np.zeros(arg.shape)
+            tmax = np.log((sys.float_info.max)/50.)
+            tmin = np.log((sys.float_info.min)/50.)
+            overflow[np.where(arg>tmax)] =  tmax
+            overflow[np.where(arg<tmin)] =  tmin
+            arg -= overflow
+            arg += overflow
+
+            #if(np.max(arg)>300.):arg -= np.max(arg)
+            ww  = (self.w0*np.exp(arg))/np.exp(overflow)
+            #ww  = self.w0*np.exp(arg)
+            # normalization 
+            zz = np.sum(ww)
+ 
+            ww /= zz
+            
+            # errors are rescaled by factor theta
+            err = (self.theta)*(self.exp_data[:,1])
+                        
             # hessian
             q_w = np.dot(ww,self.sim_data)
             hess = np.einsum('k, ki, kj->ij',ww,self.sim_data,
@@ -380,7 +407,7 @@ class Reweight:
                    np.diag(err)
                    
             # divide by theta to avoid numerical problems
-            return  fun/self.theta,jac/self.theta, hess/self.theta
+            return  hess/self.theta
 
         
         
@@ -419,13 +446,18 @@ class Reweight:
             tol = 1.0e-10
             meth = self.opt_method
             lambdas=np.zeros(self.exp_data.shape[0])
+
             if np.any(np.array(self.bounds)):
+                if meth == 'trust':
+                    meth = 'trust-constr'
                 result = optimize.minimize(func_maxent_gauss,lambdas,
                     options=opt,method=meth,  jac=True, hess=True,
                     bounds=self.bounds)
             else:
+                if meth == 'trust':
+                    meth = 'trust-exact'
                 result = optimize.minimize(func_maxent_gauss,lambdas,
-			        options=opt,method=meth, jac=True)
+			        options=opt,method=meth, jac=True, hess=hess_maxent_gauss)
             arg = -np.sum(result.x[np.newaxis,:]*self.sim_data,axis=1)
             if(np.max(arg)>300.):arg -= np.max(arg)
 
