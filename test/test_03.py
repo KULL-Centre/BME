@@ -44,7 +44,7 @@ def test():
 
     ww = rew.get_weights()
     fh = open("%s/test_%02d_weights.dat" % (outdir,num) ,"w")
-    fh.write(" ".join(["%8.4f " % x for x in ww]) )
+    fh.write(" ".join(["%8.4e " % x for x in ww]) )
     fh.close()
 
     comp("%s/test_%02d_weights.dat" %  (refdir,num))
