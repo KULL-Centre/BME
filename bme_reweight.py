@@ -445,14 +445,15 @@ class Reweight:
             opt={'maxiter':50000,'disp':False}
             meth = self.opt_method
             lambdas=np.zeros(self.exp_data.shape[0])
-
-            if np.any(np.array(self.bounds)):
-                if meth == 'trust':
-                    meth = 'trust-constr'
-                result = optimize.minimize(func_maxent_gauss,lambdas,
-                    options=opt,method=meth,  jac=True, 
-                    hess=hess_maxent_gauss,
-                    bounds=self.bounds)
+            if np.any(np.array(self.bounds)==0):
+                #if meth == 'trust':
+                meth = "L-BFGS-B"
+                #result = optimize.minimize(func_maxent_gauss,lambdas,\
+                #                           options=opt,method=meth,  jac=True,\
+                #                           hess=hess_maxent_gauss,\
+                #                           bounds=self.bounds)
+                print("# Constrained optimization: Fall back to L-BFGS_B")
+                result = optimize.minimize(func_maxent_gauss,lambdas,options=opt,method=meth,jac=True,bounds=self.bounds)
             else:
                 if meth == 'trust':
                     meth = 'trust-exact'
