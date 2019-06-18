@@ -14,7 +14,7 @@
 from __future__ import print_function
 
 import numpy as np
-from scipy import optimize
+from scipy import optimize #version >0.13.0 for dogleg optimizer
 import sys
 import warnings
         
@@ -212,7 +212,7 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=[],cols=[]):
 class Reweight:
 
     # initialize
-    def __init__(self,verbose=True,w0=[],kbt=None):
+    def __init__(self,verbose=True,w0=[],kbt=None, opt_method="trust"):
 
         self.exp_data = []
         self.sim_data = []
@@ -235,7 +235,7 @@ class Reweight:
                 w0 = np.exp((w0-np.max(w0))/kbt)
             print("# Set non-uniform initial weights from file. Sum=", np.sum(w0), len(w0))
             self.w0 = np.copy(w0)/np.sum(w0)
-
+        self.opt_method = opt_method
     # add data to class
     def add_data(self,exp_data,sim_data,labels,bounds,cols):
 
@@ -272,8 +272,10 @@ class Reweight:
             self.w0 = np.array(self.w0)[rows]/np.sum(np.array(self.w0[rows]))
             self.renormalize_w0= True
             
+        labels = np.array(labels)[cols]
         sim_data = np.array(sim_data1)[rows,:]
         sim_data = sim_data[:,cols]
+        exp_data = np.array(exp_data)[cols, :]
 
         if(data_type=="NOE"):
             sim_data = np.power(sim_data,-noe_power)
@@ -369,9 +371,43 @@ class Reweight:
             
             # gradient
             jac = self.exp_data[:,0] + lambdas*err - avg
-
+                   
             # divide by theta to avoid numerical problems
             return  fun/self.theta,jac/self.theta
+
+        def hess_maxent_gauss(lambdas):
+            
+            # weights
+            arg = -np.sum(lambdas[np.newaxis,:]*self.sim_data,axis=1)
+            # 
+            overflow = np.zeros(arg.shape)
+            tmax = np.log((sys.float_info.max)/50.)
+            tmin = np.log((sys.float_info.min)/50.)
+            overflow[np.where(arg>tmax)] =  tmax
+            overflow[np.where(arg<tmin)] =  tmin
+            arg -= overflow
+            arg += overflow
+
+            #if(np.max(arg)>300.):arg -= np.max(arg)
+            ww  = (self.w0*np.exp(arg))/np.exp(overflow)
+            #ww  = self.w0*np.exp(arg)
+            # normalization 
+            zz = np.sum(ww)
+ 
+            ww /= zz
+            
+            # errors are rescaled by factor theta
+            err = (self.theta)*(self.exp_data[:,1])
+                        
+            # hessian
+            q_w = np.dot(ww,self.sim_data)
+            hess = np.einsum('k, ki, kj->ij',ww,self.sim_data,
+                   self.sim_data) - \
+                   np.outer(q_w,q_w) + \
+                   np.diag(err)
+                   
+            # divide by theta to avoid numerical problems
+            return  hess/self.theta
 
         
         
@@ -406,11 +442,23 @@ class Reweight:
         
         if(method=="MAXENT"):
             
-            opt={'maxiter':50000,'disp':False,'ftol':1.0e-10}
-            meth = "L-BFGS-B"
+            opt={'maxiter':50000,'disp':False}
+            meth = self.opt_method
             lambdas=np.zeros(self.exp_data.shape[0])
 
-            result = optimize.minimize(func_maxent_gauss,lambdas,options=opt,method=meth,jac=True,bounds=self.bounds)
+            if np.any(np.array(self.bounds)):
+                if meth == 'trust':
+                    meth = 'trust-constr'
+                result = optimize.minimize(func_maxent_gauss,lambdas,
+                    options=opt,method=meth,  jac=True, 
+                    hess=hess_maxent_gauss,
+                    bounds=self.bounds)
+            else:
+                if meth == 'trust':
+                    meth = 'trust-exact'
+                result = optimize.minimize(func_maxent_gauss,lambdas,
+			        options=opt,method=meth, jac=True, 
+			        hess=hess_maxent_gauss)
             arg = -np.sum(result.x[np.newaxis,:]*self.sim_data,axis=1)
             if(np.max(arg)>300.):arg -= np.max(arg)
 
