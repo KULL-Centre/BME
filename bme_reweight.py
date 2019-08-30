@@ -14,12 +14,12 @@
 from __future__ import print_function
 
 import numpy as np
-from scipy import optimize #version >0.13.0 for dogleg optimizer
+from scipy import optimize,stats #version >0.13.0 for dogleg optimizer
 import sys
 import warnings
         
 # these are known data types and error priors
-exp_types = ["NOE","JCOUPLINGS","CS","SAXS","DIST","RDC"]
+exp_types = ["NOE","JCOUPLINGS","CS","SAXS","DIST","RDC","SAS"]
 prior_types = ["GAUSS"]
 
 # calculate relative entropy
@@ -147,26 +147,33 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=[],cols=[]):
 
     L0 = 1.0
     L1 = 1.0
-    if(data_type=="RDC"): 
+    offset0 = 0.0
+    offset1 = 0.0
+    if(data_type=="RDC" or data_type=="SAS"): 
         ee = np.array([e[0] for e in exp_data])
         prediction0 = np.average(sim_data,axis=0,weights=w0)
         prediction1 = np.average(sim_data,axis=0,weights=w_opt)
-        L0 = np.dot(ee,prediction0)/np.dot(prediction0,prediction0)
-        L1 = np.dot(ee,prediction1)/np.dot(prediction1,prediction1)
-        print("# RDC scaling factors %8.4e, %8.4e" % (L0,L1))
-
-
+        if(data_type=="RDC"):
+            L0 = np.dot(ee,prediction0)/np.dot(prediction0,prediction0)
+            L1 = np.dot(ee,prediction1)/np.dot(prediction1,prediction1)
+            print("# RDC scaling factors %8.4e, %8.4e" % (L0,L1))
+        if(data_type=="SAS"):
+            L0, offset0, r_value0, p_value0, std_err0 = stats.linregress(prediction0,ee)
+            L1, offset1, r_value1, p_value1, std_err1 = stats.linregress(prediction1,ee)
+            print("# SAS scaling factors %8.4e, %8.4e" % (L0,L1))
+            print("# SAS offsets %8.4e, %8.4e" % (offset0,offset1))
+            
     assert len(labels) == len(sim_data[0]), \
         "# Number of rows in %s not equal to number of columns in %s" % (len(labels),len(sim_data[0]))
     
 
         
     # before/after reweighting
-    chisq_0 = chi_square(exp_data,L0*sim_data,w0,bounds=bounds)/len(exp_data)
-    bcalc_0 = back_calc(L0*sim_data,w0)
+    chisq_0 = chi_square(exp_data,L0*sim_data-offset0,w0,bounds=bounds)/len(exp_data)
+    bcalc_0 = back_calc(L0*sim_data-offset0,w0)
         
-    chisq_1 = chi_square(exp_data,L1*sim_data,w_opt,bounds=bounds)/len(exp_data)
-    bcalc_1 = back_calc(L1*sim_data,w_opt)
+    chisq_1 = chi_square(exp_data,L1*sim_data-offset1,w_opt,bounds=bounds)/len(exp_data)
+    bcalc_1 = back_calc(L1*sim_data-offset1,w_opt)
         
     # write to file.
     fh_stats.write("# %s vs. %s srel=%8.4e\n" % (exp_file.split("/")[-1],sim_file.split("/")[-1],-srel(w0,w_opt)))
@@ -280,16 +287,22 @@ class Reweight:
         if(data_type=="NOE"):
             sim_data = np.power(sim_data,-noe_power)
 
-        if(data_type=="RDC"):
+        if(data_type=="RDC" or data_type=="SAS"):
             ee = np.array([e[0] for e in exp_data])
             if(len(self.w0)==0):
                 prediction = np.average(sim_data,axis=0)
             else:
                 prediction = np.average(sim_data,axis=0,weights=self.w0)
-            L = np.dot(ee,prediction)/np.dot(prediction,prediction)
-            print("# RDC scaling factor %8.4e" % L)
-            sim_data *=	L
-            
+            if(data_type=="RDC"):
+                L = np.dot(ee,prediction)/np.dot(prediction,prediction)
+                print("# RDC scaling factor %8.4e" % L)
+                sim_data *=	L
+            if(data_type=="SAS"):
+                L, offset, r_value, p_value, std_err = stats.linregress(prediction,ee)
+                sim_data  = L*sim_data-offset
+                print("# SAS scaling factor %8.4e" % L)
+                print("# SAS offset %8.4e" % offset)
+                
         assert len(labels) == sim_data.shape[1], "# Number of rows in exp (%d) not equal to number of columns in calc (%d)" % (len(labels),sim_data.shape[1])
 
         # now do some sanity checks on data 
