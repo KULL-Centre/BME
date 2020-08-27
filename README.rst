@@ -7,18 +7,19 @@ Integrating Molecular Simulation and Experimental Data:  A Bayesian/Maximum Entr
 
 This is a Python script to perform ensemble refinement using the Bayesian/MaxEnt (BME) approach.
 You may want to use this code when you have a molecular simulation for which calculated averages do not match available experimental data (eg chemical shifts, NOE, scalar couplings, SAXS measurements, etc.). In this case, you can use the experimental data to perform an a posteriori correction of your simulation.
-The correction comes in the form of a new set of weights, one per frame in your simulation, so that calculated averages match the experimental data within some uncertainty. For a detailed description of the algorithm see our manuscript
+The correction comes in the form of a new set of weights, one per frame in your simulation, so that calculated averages match the experimental data within some uncertainty. For a detailed description of the algorithm see our manuscript here_
 
 ::
 
-   @article{bottaro2018integrating,
-   title={Integrating Molecular Simulation and Experimental Data: A Bayesian/Maximum Entropy Reweighting Approach},
-   author={Bottaro, Sandro and Bengtsen, Tone and Lindorff-Larsen, Kresten},
-   journal={bioRxiv},
-   pages={457952},
-   year={2018},
-   publisher={Cold Spring Harbor Laboratory}
-   }
+	@incollection{bottaro2020integrating,
+	title={Integrating molecular simulation and experimental data: a Bayesian/maximum entropy reweighting approach},
+  	author={Bottaro, Sandro and Bengtsen, Tone and Lindorff-Larsen, Kresten},
+  	booktitle={Structural Bioinformatics},
+  	pages={219--240},
+  	year={2020},
+  	publisher={Springer}
+	}
+
 
 
 Requirements 
@@ -47,6 +48,13 @@ Simple examples can be found in the `examples` folder. The `notebook` folder con
 Note also that the software can be used from the commandline:
 
    python bme.py --exp exp_datafile --calc calc_datafile -o outfile --theta 1.0
+
+BME has been used in several integrative studies, including:
+
+- Computing, Analyzing, and Comparing the Radius of Gyration and Hydrodynamic Radius in Conformational Ensembles of Intrinsically Disordered Proteins (`Preprint <https://www.biorxiv.org/content/10.1101/679373v2>`_) (`CODE <https://github.com/KULL-Centre/papers/tree/master/2019/IDP-methods-Ahmed-et-al>`_)
+- Integrating NMR and Simulations Reveals Motions in the UUCG Tetraloop (`Article <https://academic.oup.com/nar/article/48/11/5839/5840580>`_) (`CODE <https://github.com/KULL-Centre/papers/edit/master/2020/UUCG-dynamics-Bottaro-et-al/README>`_)
+- Structure and dynamics of a nanodisc by integrating NMR, SAXS and SANS experiments with molecular dynamics simulations (`Article <https://elifesciences.org/articles/56518>`_) (`CODE <https://github.com/KULL-Centre/papers/tree/master/2020/nanodisc-bengtsen-et-al>`_)
+
 
 Contacts, references and other stuff
 --------------
@@ -123,4 +131,4 @@ You may consider reading and citing the following relevant references as well:
     }
 		
 
-
+.. _here: https://www.biorxiv.org/content/10.1101/457952v1
