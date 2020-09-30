@@ -212,7 +212,7 @@ def weight_exp(exp_file,sim_file,w0,w_opt,outfile,rows=[],cols=[]):
 class Reweight:
 
     # initialize
-    def __init__(self,verbose=True,w0=[],kbt=None, opt_method="trust"):
+    def __init__(self,verbose=True,w0=[],kbt=None, opt_method="L-BFGS-B"):
 
         self.exp_data = []
         self.sim_data = []
@@ -445,21 +445,14 @@ class Reweight:
             opt={'maxiter':50000,'disp':False}
             meth = self.opt_method
             lambdas=np.zeros(self.exp_data.shape[0])
-            if np.any(np.array(self.bounds)==0):
-                #if meth == 'trust':
-                meth = "L-BFGS-B"
-                #result = optimize.minimize(func_maxent_gauss,lambdas,\
-                #                           options=opt,method=meth,  jac=True,\
-                #                           hess=hess_maxent_gauss,\
-                #                           bounds=self.bounds)
-                print("# Constrained optimization: Fall back to L-BFGS_B")
-                result = optimize.minimize(func_maxent_gauss,lambdas,options=opt,method=meth,jac=True,bounds=self.bounds)
-            else:
-                if meth == 'trust':
-                    meth = 'trust-exact'
-                result = optimize.minimize(func_maxent_gauss,lambdas,
-			        options=opt,method=meth, jac=True, 
-			        hess=hess_maxent_gauss)
+
+            result = optimize.minimize(func_maxent_gauss,lambdas,options=opt,method=meth,jac=True,bounds=self.bounds)
+            #else:
+             #   if meth == 'trust':
+             #       meth = 'trust-exact'
+             #   result = optimize.minimize(func_maxent_gauss,lambdas,
+	#		        options=opt,method=meth, jac=True, 
+#			        hess=hess_maxent_gauss)
             arg = -np.sum(result.x[np.newaxis,:]*self.sim_data,axis=1)
             if(np.max(arg)>300.):arg -= np.max(arg)
 
