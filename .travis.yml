@@ -10,6 +10,7 @@ python:
 install:
    - pip install numpy scipy 
    - pip install nose2
+   - pip install pandas	
 script:
   # Your test script goes here
   nose2
