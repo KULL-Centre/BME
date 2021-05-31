@@ -220,6 +220,7 @@ class TestClass:
         # test cross-validation
 
         reference = [4.77155,1.50094,0.82806]
+        print(reference, chi2_before,chi2_after, phi)
         assert(calc_diff([chi2_before,chi2_after, phi],reference)<tol)
         print("...OK")
 
