@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import sys
+import sys,os
 import time
 import numpy as np
 import pandas as pd
@@ -424,8 +424,12 @@ class Reweight:
     def theta_scan(self,thetas=[],train_fraction_data=0.75,nfold=5,train_fraction_samples=0.8):
 
         np.random.seed(42)
+        tmp_dir = "theta_scan"
+        os.system("mkdir -p %s" % tmp_dir)
         if(len(thetas)==0): thetas = np.geomspace(0.1,10000,10)
         print("Performing %d-fold cross validation for %d theta values" % (nfold,len(thetas)))
+        print("Output files are written to %s" % (tmp_dir))
+              
         nsamples = self.get_nsamples()
         ndata =   self.get_ndata()
         
@@ -468,9 +472,9 @@ class Reweight:
                 l_init = False
                 fr = "crossval_%s_t%.2f_f%d" % (self.name,t,i)
                 train_stats = r1.predict_array(labels_train,exp_train,calc_train[train_idx_samples,:],\
-                                           outfile="%s_train" % (fr))
+                                           outfile="%s/%s_train" % (tmp_dir,fr))
                 test_stats = r1.predict_array(labels_test,exp_test,calc_test[test_idx_samples,:],
-                                          outfile="%s_test" % (fr))
+                                          outfile="%s/%s_test" % (tmp_dir,fr))
                 #print("####",i,j)
                 #outfiles.append(fr)
                 results[j,i,0] = train_stats[3]/train_stats[0]
@@ -505,7 +509,7 @@ class Reweight:
         ax.axhline(1,ls="--",color='0.4')
         ax.set_xscale('log')
         ax.set_xlabel("Theta")
-        plt.savefig("crossval_%s.png" % self.name)
+        plt.savefig("%s/crossval_%s.png" % (tmp_dir,self.name))
 
         return thetas[argmin]
         

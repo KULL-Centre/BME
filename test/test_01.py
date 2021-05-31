@@ -1,5 +1,6 @@
 import sys,os
 import numpy as np
+import filecmp
 
 bme_dir = os.getcwd().split("test")[0]
 sys.path.append(bme_dir)
@@ -143,21 +144,105 @@ class TestClass:
         #assert(calc_diff(results_four[2],stats2)<tol)
         print("...OK")
 
+    def test_six(self):
         
+        print("TEST predict ",end="")
+        os.system("mkdir -p %s/test/tmp/" % bme_dir)
+        rew = BME.Reweight("example_01")
+        # load the experimental and calculated datasets
+        rew.load(exp_file_3j,calc_file_3j)
+        # fit the data 
+        chi2_before, chi2_after, phi = rew.fit(theta=0.5)
+        stats = rew.predict(exp_file_3j,calc_file_3j,"%s/test/tmp/example_01_couplings" % bme_dir)
+        stats_noe = rew.predict(exp_file_noe,calc_file_noe,"%s/test/tmp/example_01_noe"% bme_dir)
+        filecmp.cmp("%s/test/reference/example_01_couplings" % bme_dir,"%s/test/tmp/example_01_couplings"% bme_dir)
+        filecmp.cmp("%s/test/reference/example_01_noe" % bme_dir ,"%s/test/tmp/example_01_noe"% bme_dir)
+        print("...OK")
+        
+    # test RDC
+    def test_seven(self):
 
-# test uNOE
+        print("TEST  RDC ",end="")
 
-# test RDC
+        # define input file names
+        exp_file = "%s/data/RDC_TL.exp.dat" % bme_dir
+        calc_file = "%s/data/RDC_TL.calc.dat.zip" % bme_dir
+        
+        rew = BME.Reweight("example_03_scale")
+        # load the experimental and calculated datasets note the "scale" 
+        rew.load(exp_file,calc_file,fit="scale")
+        results_seven = rew.fit(theta=100)
+        reference = [15.60307, 8.05427,0.66448]
+        assert(calc_diff(results_seven,reference)<tol)
+        print("...OK")
 
-# test RDC w weights
 
-# test SAXS
 
-# test iBME
+# test SAXS        
+    def test_eight(self):
 
-# test cross-validation
+        print("TEST SAXS ",end="")
 
-# test weights on datasets
+        exp_file = "%s/data/saxs.exp.dat" % bme_dir
+        calc_file = "%s/data/calc_saxs.txt.zip" % bme_dir
+
+
+        # initialize. A name must be specified 
+        rew = BME.Reweight("example_03_scale_offset")
+
+        # load the experimental and calculated datasets
+        rew.load(exp_file,calc_file,fit="scale+offset")
+
+        results_eight = rew.fit(theta=100)
+        reference = [ 4.77155,2.04621,0.56695]
+        assert(calc_diff(results_eight,reference)<tol)
+        print("...OK")
+
+
+
+    # test iBME
+    def test_nine(self):
+
+        print("TEST iBME ",end="")
+
+        # define input file names
+        exp_file_1 = "%s/data/saxs.exp.dat" % bme_dir
+        calc_file_1 = "%s/data/calc_saxs.txt.zip" % bme_dir
+        
+        #calc_saxs.txt.zip
+        # initialize. A name must be specified 
+        rew = BME.Reweight("example_04")
+        
+        # load the experimental and calculated datasets
+        rew.load(exp_file_1,calc_file_1)
+        
+        chi2_before,chi2_after, phi, calc0,calc_rew  = rew.ibme(theta=1000,iterations=50,ftol=0.02,offset=True)
+        # test cross-validation
+
+        reference = [4.77155,1.50094,0.82806]
+        assert(calc_diff([chi2_before,chi2_after, phi],reference)<tol)
+        print("...OK")
+
+
+    # test RDC w weights
+    def test_ten(self):
+
+        print("TEST RDC with weights ",end="") # 
+
+        exp_file = "%s/data/RDC_TL.exp.dat" % bme_dir
+        calc_file = "%s/data/RDC_TL.calc.dat.zip" % bme_dir
+        weight_file = "%s/data/w0.dat" % bme_dir
+        
+        initial_weights = np.loadtxt(weight_file)[:,1]
+        rew = BME.Reweight("example_05",w0=initial_weights)
+        
+        # load the experimental and calculated datasets. These are RDC, remeber to 'scale' them 
+        rew.load(exp_file,calc_file,fit="scale")
+        results_ten = rew.fit(theta=100)
+        reference = [15.76556,8.22772,0.66176]
+
+        assert(calc_diff(results_ten,reference)<tol)
+        print("...OK")
 
 
 
