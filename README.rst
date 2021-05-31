@@ -27,7 +27,7 @@ Requirements
 
 1) Python>=3.4
 
-2) Numpy, Scipy libraries
+2) Numpy, Scipy, Sklearn, Pandas
 
 3) Jupyter and Matplotlib (for notebooks only)
   
