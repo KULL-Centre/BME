@@ -27,7 +27,7 @@ results_five = [[250.57610578123675, 2.839437835805958e-05, 0.44194271235643084]
                 [4.322245867831557, 0.20790011707143305, 13, 0.0, 0.0, 0]]
 
 exp_file_3j = "%s/data/couplings_exp.dat" % bme_dir
-calc_file_3j = "%s/data/couplings_calc.dat" % bme_dir
+calc_file_3j = "%s/data/couplings_calc.dat.zip" % bme_dir
 
 exp_file_noe = "%s/data/NOE_exp.dat" % bme_dir
 calc_file_noe = "%s/data/NOE_calc.dat.zip" % bme_dir
