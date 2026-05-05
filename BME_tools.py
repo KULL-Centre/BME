@@ -112,13 +112,20 @@ def fit_and_scale(exp,calc,sample_weights,fit):
 
         reg = LinearRegression(fit_intercept=fit_intercept).fit(calc_avg.reshape(-1,1),exp_avg.reshape(-1,1),sample_weight=oversigma)
         r_value = reg.score(calc_avg.reshape(-1,1),exp_avg.reshape(-1,1),sample_weight=oversigma)
-        slope,intercept = reg.coef_[0],reg.intercept_
-               
-        calc *=slope
-        calc +=intercept
-
+        
+        # slope,intercept = reg.coef_[0],reg.intercept_
+        # calc *=slope
+        # calc +=intercept
+        # calc_avg = np.sum(calc*sample_weights[:,np.newaxis],axis=0).reshape(-1,1)
+        # log = "# Slope=%8.4f; Offset=%8.4f; r2=%8.4f \n" % (slope,intercept,r_value)
+        
+        slope     = float(reg.coef_[0][0])
+        intercept = float(reg.intercept_[0])
+        calc *= slope
+        calc += intercept
         calc_avg = np.sum(calc*sample_weights[:,np.newaxis],axis=0).reshape(-1,1)
-        log = "# Slope=%8.4f; Offset=%8.4f; r2=%8.4f \n" % (slope,intercept,r_value)
+        log = "# Slope=%8.4f; Offset=%8.4f; r2=%8.4f \n" % (slope, intercept, r_value)
+
         return calc_avg,log
 
 
