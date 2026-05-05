@@ -280,7 +280,7 @@ class Reweight:
             return chi2_half,jac
 
         if(lambdas_init==True):
-            lambdas=np.zeros(self.experiment.shape[0],dtype=np.longdouble)
+            lambdas = np.zeros(self.experiment.shape[0], dtype=np.float64)
             self.log.write("Lagrange multipliers initialized from zero\n")
         else:
             assert(len(self.lambdas)==self.experiment.shape[0])
@@ -343,7 +343,7 @@ class Reweight:
                 self.log.write("Message: %s\n" % (result.message))
                 self.niter = -1
                 self.log.flush()
-                return np.NaN, np.NaN, np.NaN
+                return np.nan, np.nan, np.nan
             
             
 
@@ -379,7 +379,7 @@ class Reweight:
                 self.log.write("Minimization using %s failed\n" % (mini_method))
                 self.log.write("Message: %s\n" % (result.message))
                 self.log.flush()
-                return np.NaN, np.NaN, np.NaN
+                return np.nan, np.nan, np.nan
    
         # please check 
         if(method=="CHI2_L2"):
@@ -533,7 +533,7 @@ class Reweight:
             inv_var = np.ones(len(exp))
 
         log = ""
-        rr_old = np.NaN
+        rr_old = np.nan
         #self.log.write("acascacasacas\n")
         for it in range(iterations):
             
